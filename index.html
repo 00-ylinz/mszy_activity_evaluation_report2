@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>住四送一活动效果评估报告</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; font-size: 13px; color: #2C2C2A; background: #f5f4f1; line-height: 1.6; padding: 24px 32px; max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
+  h2 { font-size: 14px; font-weight: 500; color: #2C2C2A; margin: 28px 0 12px; border-left: 3px solid #185FA5; padding-left: 10px; }
+  h3 { font-size: 13px; font-weight: 500; color: #444441; margin: 16px 0 8px; }
+  p { color: #444441; margin-bottom: 8px; font-size: 13px; }
+  .subtitle { font-size: 12px; color: #888780; margin-bottom: 20px; }
+  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.11); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+  .section-tag { display: inline-block; font-size: 11px; font-weight: 500; background: #E6F1FB; color: #185FA5; border-radius: 4px; padding: 2px 8px; margin-bottom: 8px; }
+  .section-tag.green { background: #EAF3DE; color: #3B6D11; }
+  .section-tag.amber { background: #FAEEDA; color: #854F0B; }
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+  .metrics-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+  .mc { background: #f5f4f1; border-radius: 8px; padding: 11px 13px; }
+  .mc .lb { font-size: 11px; color: #888780; margin-bottom: 3px; }
+  .mc .vl { font-size: 20px; font-weight: 500; color: #2C2C2A; }
+  .mc .sb { font-size: 11px; color: #888780; margin-top: 2px; }
+  .mc.pos .vl { color: #3B6D11; }
+  .mc.neg .vl { color: #A32D2D; }
+  .mc.blue .vl { color: #185FA5; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .cw { background: #f5f4f1; border-radius: 8px; padding: 12px 14px; }
+  .ct { font-size: 11px; color: #5F5E5A; font-weight: 500; margin-bottom: 8px; }
+  .box-blue { background: #E6F1FB; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .box-blue .ttl { font-size: 12px; font-weight: 500; color: #185FA5; margin-bottom: 5px; }
+  .box-blue ul { padding-left: 15px; color: #0C447C; }
+  .box-blue li { margin-bottom: 3px; font-size: 12px; }
+  .box-red { background: #FCEBEB; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .box-red .ttl { font-size: 12px; font-weight: 500; color: #A32D2D; margin-bottom: 5px; }
+  .box-red ul { padding-left: 15px; color: #791F1F; }
+  .box-red li { margin-bottom: 3px; font-size: 12px; }
+  .box-green { background: #EAF3DE; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .box-green .ttl { font-size: 12px; font-weight: 500; color: #3B6D11; margin-bottom: 5px; }
+  .box-green ul { padding-left: 15px; color: #27500A; }
+  .box-green li { margin-bottom: 3px; font-size: 12px; }
+  .box-amber { background: #FAEEDA; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .box-amber .ttl { font-size: 12px; font-weight: 500; color: #854F0B; margin-bottom: 5px; }
+  .box-amber ul { padding-left: 15px; color: #633806; }
+  .box-amber li { margin-bottom: 3px; font-size: 12px; }
+  .divider { height: 0.5px; background: rgba(0,0,0,0.09); margin: 18px 0; }
+  .toc { background: #fff; border: 0.5px solid rgba(0,0,0,0.11); border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; }
+  .toc-title { font-size: 12px; font-weight: 500; color: #444441; margin-bottom: 8px; }
+  .toc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+  .toc-list { list-style: none; }
+  .toc-list li { padding: 2px 0; font-size: 12px; color: #185FA5; }
+  .toc-list li::before { content: '· '; color: #B5D4F4; }
+  .tab-bar { display: flex; gap: 0; margin-bottom: 14px; border: 0.5px solid rgba(0,0,0,0.11); border-radius: 8px; overflow: hidden; width: fit-content; }
+  .tab { padding: 5px 14px; font-size: 12px; cursor: pointer; background: #f5f4f1; color: #888780; border: none; transition: background 0.15s; }
+  .tab.active { background: #185FA5; color: #fff; font-weight: 500; }
+  .hidden { display: none; }
+  .sn { font-size: 11px; color: #888780; margin-bottom: 3px; }
+  .insight-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .ic { border-radius: 8px; padding: 11px 13px; }
+  .ic.bl { background: #E6F1FB; }
+  .ic.gr { background: #EAF3DE; }
+  .ic.am { background: #FAEEDA; }
+  .ic .lb { font-size: 11px; font-weight: 500; color: #888780; margin-bottom: 4px; }
+  .ic .vl { font-size: 17px; font-weight: 500; margin-bottom: 3px; }
+  .ic.bl .vl { color: #185FA5; }
+  .ic.gr .vl { color: #3B6D11; }
+  .ic.am .vl { color: #854F0B; }
+  .ic .ds { font-size: 11px; color: #5F5E5A; }
+
+  /* 核心结论区 */
+  .summary-hero { background: #042C53; border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; }
+  .summary-hero h1 { color: #fff; font-size: 18px; }
+  .summary-hero .sub { color: rgba(255,255,255,0.6); font-size: 12px; margin-bottom: 18px; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .sg-card { background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 14px 16px; }
+  .sg-card .sg-num { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+  .sg-card .sg-title { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 6px; }
+  .sg-card .sg-body { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .sg-card .sg-badge { display: inline-block; font-size: 10px; font-weight: 500; border-radius: 3px; padding: 1px 6px; margin-right: 4px; margin-bottom: 2px; }
+  .badge-pos { background: rgba(99,153,34,0.35); color: #C0DD97; }
+  .badge-neg { background: rgba(226,75,74,0.35); color: #F7C1C1; }
+  .badge-warn { background: rgba(239,159,39,0.35); color: #FAC775; }
+  .badge-info { background: rgba(55,138,221,0.35); color: #B5D4F4; }
+  .sg-divider { height: 0.5px; background: rgba(255,255,255,0.12); margin: 14px 0 10px; }
+  .sg-note { font-size: 11px; color: rgba(255,255,255,0.5); padding: 10px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+  .part-header { display: flex; align-items: center; gap: 10px; margin: 24px 0 14px; }
+  .part-num { width: 28px; height: 28px; border-radius: 50%; background: #185FA5; color: #fff; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .part-title { font-size: 15px; font-weight: 500; color: #2C2C2A; }
+  .part-sub { font-size: 12px; color: #888780; }
+  .note-inline { font-size: 11px; color: #888780; background: #f5f4f1; border-radius: 5px; padding: 3px 8px; display: inline-block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ========== 核心结论总览 ========== -->
+<div class="summary-hero">
+  <div class="section-tag" style="background:rgba(255,255,255,0.15);color:#B5D4F4;margin-bottom:6px;">住四送一 · 活动效果评估报告</div>
+  <h1>核心结论总览</h1>
+  <p class="sub">数据口径：领取任务时间 4.16–5.10 | 观测窗口：7天 / 14天 / 领奖前90天</p>
+
+  <div class="summary-grid">
+    <div class="sg-card">
+      <div class="sg-num">结论一</div>
+      <div class="sg-title">任务机制显著提升回访粘性</div>
+      <div class="sg-body">
+        <span class="sg-badge badge-neg">无回访率 -30%</span><span class="sg-badge badge-pos">高频回访 +14%</span><br>
+        已下任务单用户7天内无回访率仅14%（vs 44%），高频回访（5天+）达20%，差距在14天进一步扩大（+22%）。任务机制有效驱动用户主动返回平台，效果具有持续性。
+      </div>
+    </div>
+    <div class="sg-card">
+      <div class="sg-num">结论二</div>
+      <div class="sg-title">任务大幅拉动短期复购转化</div>
+      <div class="sg-body">
+        <span class="sg-badge badge-neg">无复购率 -42%</span><span class="sg-badge badge-pos">复购2单+ +22%</span><br>
+        7天无复购率已下任务单44% vs 未下86%，差距42个百分点；14天进一步扩大至-47%。任务不只拉动首单，更推动持续多次复购。
+      </div>
+    </div>
+    <div class="sg-card">
+      <div class="sg-num">结论三</div>
+      <div class="sg-title">已下任务单用户的预订偏好与未下单用户存在结构性差异</div>
+      <div class="sg-body">
+        <span class="sg-badge badge-pos">三星+高星 +16%</span><span class="sg-badge badge-pos">周末出行 +21%</span><span class="sg-badge badge-pos">价格集中150-350元</span><br>
+        已下任务单用户对比未下单用户，低星占比更低（-16%）、三高星更高（+16%），一线城市占比更高（+6.7%），周末出行更集中（+21%）。该差异反映了两组用户在领取任务后消费选择上的不同表现。
+      </div>
+    </div>
+    <div class="sg-card">
+      <div class="sg-num">结论四</div>
+      <div class="sg-title">完成任务用户历史高频特征突出；三组完成后行为分化显著</div>
+      <div class="sg-body">
+        <span class="sg-badge badge-warn">整体11单+占57%</span><span class="sg-badge badge-warn">已兑奖20单+占51%</span><span class="sg-badge badge-info">已兑奖无回访2.2%</span><span class="sg-badge badge-neg">未兑奖已过期无回访42%</span><br>
+        完成任务用户（365人）历史下单11单+整体占57%，黄牛风险较高。完成任务后行为分化：已兑奖用户回访复购最活跃（无回访2.2%，无复购36%）；未兑奖未过期居中（无回访30%，无复购55%）；未兑奖已过期接近未下任务单水平（无回访42%，无复购74%），奖品过期后拉力基本消失。
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 目录 -->
+<div class="toc">
+  <div class="toc-title">目录</div>
+  <div class="toc-cols">
+    <ul class="toc-list">
+      <li>【一】用户规模与分组概况</li>
+      <li>【二】领取任务后 7 天访问行为</li>
+      <li>【三】领取任务后 7 天订单行为差异</li>
+      <li>【四】14 天行为差异（延伸验证）</li>
+      <li>【五】预订偏好差异（6项）</li>
+    </ul>
+    <ul class="toc-list">
+      <li>【六】完成任务用户历史下单频次</li>
+      <li>【七】完成任务用户历史预订偏好</li>
+      <li>【八】完成任务后 7 天回访与复购</li>
+      <li>【九】综合评估与建议</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================== 第一板块 ============================== -->
+<div class="part-header">
+  <div class="part-num">一</div>
+  <div>
+    <div class="part-title">领取任务用户的后续行为差异</div>
+    <div class="part-sub">未下任务单 vs 已下任务单 | 观测窗口：领取日后 7 天 / 14 天</div>
+  </div>
+</div>
+
+<!-- 一 分组概况 -->
+<div class="card" id="sec1">
+  <div class="sn">【一】</div>
+  <h2 style="margin-top:0;">用户规模与分组概况</h2>
+  <div class="metrics-row">
+    <div class="mc">
+      <div class="lb">未下任务单用户</div>
+      <div class="vl">48,994</div>
+      <div class="sb">wx 46,918 / app 2,276</div>
+    </div>
+    <div class="mc pos">
+      <div class="lb">已下任务单用户</div>
+      <div class="vl">8,458</div>
+      <div class="sb">wx 8,253 / app 205</div>
+    </div>
+    <div class="mc blue">
+      <div class="lb">任务单转化率</div>
+      <div class="vl">14.7%</div>
+      <div class="sb">领取后实际下任务单比例</div>
+    </div>
+    <div class="mc">
+      <div class="lb">渠道构成</div>
+      <div class="vl">wx 为主</div>
+      <div class="sb">两组均以 wx 渠道为主体</div>
+    </div>
+  </div>
+  <div class="box-blue">
+    <div class="ttl">分组说明</div>
+    <ul>
+      <li><strong>统计范围</strong：仅看领取活动任务时间在 4.16–5.10 的用户，是否下单也限定在该时间区间内</li>
+      <li><strong>未下任务单</strong>：领取活动任务，但在 4.16–5.10 时间窗口内未创建满足活动要求的订单</li>
+      <li><strong>已下任务单</strong>：领取活动任务后，在 4.16–5.10 时间窗口内创建了至少 1 个符合任务规则的订单</li>
+      <li>两组渠道分布高度一致（wx 约占 95%），可排除渠道差异干扰</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 二 7天回访 -->
+<div class="card" id="sec2">
+  <div class="sn">【二】</div>
+  <h2 style="margin-top:0;">领取任务后 7 天访问行为</h2>
+  <div class="note-inline">统计口径：行为日期 &gt; 领取日期，≤ 领取日期 + 7</div>
+  <div class="insight-row">
+    <div class="ic bl">
+      <div class="lb">无回访差值（汇总）</div>
+      <div class="vl">-30%</div>
+      <div class="ds">已下任务单无回访仅14%，较未下单低30个百分点</div>
+    </div>
+    <div class="ic gr">
+      <div class="lb">高频回访5天+差值</div>
+      <div class="vl">+14%</div>
+      <div class="ds">已下任务单高频回访20%，未下单仅6%</div>
+    </div>
+    <div class="ic am">
+      <div class="lb">回访3天+综合差值</div>
+      <div class="vl">+20%</div>
+      <div class="ds">已下任务单回访3天+约46%，未下单约19%</div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="cw">
+      <div class="ct">7天回访天数分布对比（%）</div>
+      <div style="position:relative;height:230px;">
+        <canvas id="visit7Chart" role="img" aria-label="7天回访天数分布对比">图表</canvas>
+      </div>
+    </div>
+    <div class="cw">
+      <div class="ct">7天回访差值（已下 - 未下，百分点）</div>
+      <div style="position:relative;height:230px;">
+        <canvas id="visit7DiffChart" role="img" aria-label="7天回访差值">图表</canvas>
+      </div>
+    </div>
+  </div>
+  <div class="box-blue">
+    <div class="ttl">关键发现</div>
+    <ul>
+      <li>已下任务单 7 天内无回访率仅 14%（未下任务单 44%），差 -30 个百分点，任务机制有效驱动主动回访</li>
+      <li>高频回访（5天+）：已下 20% vs 未下 6%，差 +14pct；app 渠道差距更大（33% vs 8%，差 +24pct）</li>
+      <li>回访 3 天+用户比例：已下约 46% vs 未下约 19%，高出 27 个百分点</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 三 7天复购 -->
+<div class="card" id="sec3">
+  <div class="sn">【三】</div>
+  <h2 style="margin-top:0;">领取任务后 7 天订单行为差异</h2>
+  <div class="note-inline">统计口径：订单日期 &gt; 领取日期，≤ 领取日期 + 7</div>
+  <div class="insight-row">
+    <div class="ic bl">
+      <div class="lb">无复购差值（汇总）</div>
+      <div class="vl">-42%</div>
+      <div class="ds">已下任务单无复购率44%，较未下单86%低42个百分点</div>
+    </div>
+    <div class="ic gr">
+      <div class="lb">复购1单差值</div>
+      <div class="vl">+20%</div>
+      <div class="ds">已下任务单复购1单29%，较未下单10%高出20pct</div>
+    </div>
+    <div class="ic gr">
+      <div class="lb">复购2单+差值</div>
+      <div class="vl">+22%</div>
+      <div class="ds">已下任务单复购2单+约27%，未下单仅约4%</div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="cw">
+      <div class="ct">7天订单数分布对比（%）</div>
+      <div style="position:relative;height:230px;">
+        <canvas id="order7Chart" role="img" aria-label="7天订单数分布对比">图表</canvas>
+      </div>
+    </div>
+    <div class="cw">
+      <div class="ct">7天复购差值（已下 - 未下，百分点）</div>
+      <div style="position:relative;height:230px;">
+        <canvas id="order7DiffChart" role="img" aria-label="7天复购差值">图表</canvas>
+      </div>
+    </div>
+  </div>
+  <div class="box-blue">
+    <div class="ttl">关键发现</div>
+    <ul>
+      <li>已下任务单用户7天内无复购仅44%（未下86%），差值 -42pct，短期转化提升极为显著</li>
+      <li>复购 2 单+：已下约 27% vs 未下约 4%，任务激励有效驱动多次购买</li>
+      <li>app 渠道无复购差距最大（-56%），说明 app 高意图用户活动拉动效果更强</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 四 14天 -->
+<div class="card" id="sec4">
+  <div class="sn">【四】</div>
+  <h2 style="margin-top:0;">14 天行为差异（延伸验证）</h2>
+  <div class="chart-grid">
+    <div class="cw">
+      <div class="ct">回访差值对比：14天 vs 7天（百分点）</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="visit14CmpChart" role="img" aria-label="14天与7天回访差值对比">图表</canvas>
+      </div>
+    </div>
+    <div class="cw">
+      <div class="ct">复购差值对比：14天 vs 7天（百分点）</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="order14CmpChart" role="img" aria-label="14天与7天复购差值对比">图表</canvas>
+      </div>
+    </div>
+  </div>
+  <div class="box-blue">
+    <div class="ttl">延伸规律</div>
+    <ul>
+      <li>14天无回访差 -28%（7天-30%），略有收窄，部分用户存在"延迟回访"现象</li>
+      <li>14天高频回访（5天+）差值扩大至 +22%（7天 +14%），<strong>中长期粘性在两周维度验证更充分</strong></li>
+      <li>14天无复购差扩大至 -47%（7天 -42%），复购 2 单+差值达 +22%，累积复购效应持续增强</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 五 预订偏好 -->
+<div class="card" id="sec5">
+  <div class="sn">【五】</div>
+  <h2 style="margin-top:0;">预订偏好差异</h2>
+
+  <div class="box-blue" style="margin-bottom:14px;">
+    <div class="ttl">各维度总结</div>
+    <ul>
+      <li><strong>星级</strong>：已下任务单用户低星占比显著更低（-16%），三高星合计提升16%，呈现消费升级趋势</li>
+      <li><strong>城市</strong>：一线城市占比更高（+6.7%），下任务单用户订单更集中于高线城市</li>
+      <li><strong>出行时间</strong>：从节假日/周中转向周末为主（+21%）</li>
+      <li><strong>价格</strong>：主力区间150-350元（+27%），低价段大幅减少</li>
+      <li><strong>提前预订</strong>：已下任务单wx当天订72%（vs未下64%），即时消费倾向更强，5天+远期预订更低（7.8% vs 14.8%）</li>
+      <li><strong>连住天数</strong>：单晚短住绝对主流（已下84% vs 未下76%）</li>
+    </ul>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showPref('star',this)">星级偏好</button>
+    <button class="tab" onclick="showPref('city',this)">出行城市</button>
+    <button class="tab" onclick="showPref('timing',this)">出行时间</button>
+    <button class="tab" onclick="showPref('price',this)">价格区间</button>
+    <button class="tab" onclick="showPref('advance',this)">提前预订天数</button>
+    <button class="tab" onclick="showPref('nights',this)">连住天数</button>
+  </div>
+
+  <div id="pref-star">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">星级分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="starChart" role="img" aria-label="星级分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">星级差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="starDiffChart" role="img" aria-label="星级差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>低星占比 -16.2%（54% vs 70%），三星 +10.0%，高星 +6.3%</li>
+      <li>wx 渠道表现最突出：低星 -16.4%，三星 +10.1%，高星 +6.3%</li>
+      <li>已下任务单用户低星占比显著更低，三高星合计提升约16%，两组在星级选择上存在结构性差异</li>
+    </ul></div>
+  </div>
+
+  <div id="pref-city" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">城市能级分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="cityChart" role="img" aria-label="城市分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">城市能级差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="cityDiffChart" role="img" aria-label="城市差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>一线城市占比 +6.7%（42% vs 36%），app 渠道差距更大（+18.5%）</li>
+      <li>新一线 -6.0%，下任务单用户订单更集中于高线城市</li>
+      <li>一线城市用户出行频率更高，订单量基数更大</li>
+    </ul></div>
+  </div>
+
+  <div id="pref-timing" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">出行时间分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="timingChart" role="img" aria-label="出行时间分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">出行时间差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="timingDiffChart" role="img" aria-label="出行时间差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>节假日占比 -12.3%（9% vs 22%），周末大幅提升 +21.2%（34% vs 13%）</li>
+      <li>已下任务单用户以<strong>周末出行为主</strong></li>
+      <li>任务机制对周末出行用户覆盖更多</li>
+    </ul></div>
+  </div>
+
+  <div id="pref-price" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">单价区间分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="priceChart" role="img" aria-label="单价分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">单价区间差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="priceDiffChart" role="img" aria-label="价格差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>0-150元段 -28.9%（21% vs 50%），150-250元 +20.4%，250-350元 +7.0%</li>
+      <li>主力消费区间为 <strong>150-350 元</strong>（合计占比59% vs 23%）</li>
+    </ul></div>
+  </div>
+
+  <div id="pref-advance" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">提前预订天数分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="advanceChart" role="img" aria-label="提前预订天数分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">提前预订天数差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="advanceDiffChart" role="img" aria-label="提前预订天数差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>当天预订（提前0天）：已下任务单wx 72%，未下任务单wx 64%；已下任务单用户即时预订倾向更强（+8.3pct）</li>
+      <li>提前5天+：已下任务单wx仅7.8%，未下任务单14.8%；已下任务单用户决策周期更短</li>
+      <li>两组均以即时消费为主，但已下任务单用户当天订比例更高</li>
+    </ul></div>
+  </div>
+
+  <div id="pref-nights" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">连住天数分布对比（%）</div><div style="position:relative;height:210px;"><canvas id="nightsChart" role="img" aria-label="连住天数分布">图表</canvas></div></div>
+      <div class="cw"><div class="ct">连住天数差值（已下 - 未下，百分点）</div><div style="position:relative;height:210px;"><canvas id="nightsDiffChart" role="img" aria-label="连住天数差值">图表</canvas></div></div>
+    </div>
+    <div class="box-blue"><div class="ttl">结论</div><ul>
+      <li>连住1晚：已下任务单wx 84%，未下任务单wx 76%，单晚短住均为绝对主流</li>
+      <li>连住2晚：已下任务单wx 10%，未下任务单11%</li>
+      <li>两组差异不大，已下任务单用户单晚比例略高（+7.2pct）</li>
+    </ul></div>
+  </div>
+
+</div>
+
+<!-- ============================== 第二板块 ============================== -->
+<div class="part-header">
+  <div class="part-num" style="background:#3B6D11;">二</div>
+  <div>
+    <div class="part-title">完成任务用户的历史特征和回访复购</div>
+    <div class="part-sub">完成任务前90天历史订单特征 + 完成任务后7天回访复购行为 | wx&amp;app合并</div>
+  </div>
+</div>
+
+<!-- 六 历史下单频次 -->
+<div class="card" id="sec6">
+  <div class="sn">【六】</div>
+  <h2 style="margin-top:0;">完成任务用户历史下单频次分布</h2>
+  <div class="note-inline">样本：完成任务用户 365人（未兑奖未过期301人、未兑奖已过期19人、已兑奖45人）| 历史下单 = 完成任务前90天</div>
+
+  <div class="metrics-row">
+    <div class="mc blue">
+      <div class="lb">未兑奖（奖品未过期）</div>
+      <div class="vl">301 人</div>
+      <div class="sb">11单+ 占55%（27.9%+26.9%），存在黄牛风险</div>
+    </div>
+    <div class="mc">
+      <div class="lb">未兑奖（奖品已过期）</div>
+      <div class="vl">19 人</div>
+      <div class="sb">样本较小；1-5单占42%，可能对活动感知较弱</div>
+    </div>
+    <div class="mc" style="background:#FFF3E0;">
+      <div class="lb">已兑奖</div>
+      <div class="vl" style="color:#854F0B;">45 人</div>
+      <div class="sb">20单+占51%，高频特征最突出</div>
+    </div>
+    <div class="mc neg">
+      <div class="lb">整体11单+占比</div>
+      <div class="vl">57%</div>
+      <div class="sb">11-20单28.2% + 20单+28.8%，黄牛风险较高</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cw">
+      <div class="ct">历史下单频次分布 — 三组对比（%）</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="freqChart" role="img" aria-label="历史下单频次分布三组对比">图表</canvas>
+      </div>
+    </div>
+    <div class="cw" style="display:flex;flex-direction:column;justify-content:center;gap:8px;padding:6px 0;">
+      <div class="box-red" style="margin:0;">
+        <div class="ttl">黄牛风险信号</div>
+        <ul>
+          <li>已兑奖用户 20单+ 占51%，11单+ 合计82%，高频特征最明显</li>
+          <li>未兑奖未过期用户 11单+ 占55%，整体同样偏高</li>
+          <li>目前暂无黄牛识别标签，需警惕黄牛风险</li>
+        </ul>
+      </div>
+      <div class="box-amber" style="margin:0;">
+        <div class="ttl">未兑奖已过期用户特征</div>
+        <ul>
+          <li>19人，1-5单占42%（1-2单11%、3-5单32%），低频占比远高于其他两组</li>
+          <li>可能存在对活动规则感知弱、忘记兑奖等情况</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 七 历史预订偏好 -->
+<div class="card" id="sec7">
+  <div class="sn">【七】</div>
+  <h2 style="margin-top:0;">完成任务用户历史预订偏好（完成任务前90天）</h2>
+  <div class="note-inline">口径：wx&amp;app 合并 | 未兑奖未过期 5,007单，未兑奖已过期 161单，已兑奖 1,430单，合计 6,598单</div>
+
+  <div class="box-blue" style="margin-bottom:14px;">
+    <div class="ttl">各维度总结</div>
+    <ul>
+      <li><strong>本异地</strong>：已兑奖异地占比最高（66%），未兑奖已过期接近5:5（50%异地）</li>
+      <li><strong>星级</strong>：已兑奖三星+高星占比更高（70%），未兑奖未过期低星近半（49%）；未兑奖已过期高星47%，消费能力最强</li>
+      <li><strong>城市线级</strong>：三组均集中于高线城市；已兑奖新一线最高（40%），未兑奖已过期一线最高（53%）</li>
+      <li><strong>ADR</strong>：三组主力区间均为150-250元；未兑奖已过期高价段（450元+）占29%，消费层次偏高</li>
+      <li><strong>提前预订</strong>：三组均以当天预订为主；已兑奖5天+远期预订最高（12%）</li>
+      <li><strong>连住天数</strong>：单晚短住为主；未兑奖已过期多晚比例最高（4晚9%），连住需求更强</li>
+    </ul>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showHist('hloc',this)">本异地</button>
+    <button class="tab" onclick="showHist('hstar',this)">酒店星级</button>
+    <button class="tab" onclick="showHist('hcity',this)">城市线级</button>
+    <button class="tab" onclick="showHist('hadr',this)">ADR区间</button>
+    <button class="tab" onclick="showHist('hadv',this)">提前订天数</button>
+    <button class="tab" onclick="showHist('hnight',this)">连住天数</button>
+  </div>
+
+  <!-- 本异地 -->
+  <div id="hist-hloc">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">本异地分布（%）</div><div style="position:relative;height:210px;"><canvas id="hLocChart" role="img" aria-label="本异地分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>已兑奖：异地66%，本地34%，异地出行占比最高</li>
+          <li>未兑奖未过期：异地54%，本地46%</li>
+          <li>未兑奖已过期：异地50%，本地50%，本异地基本持平</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 星级 -->
+  <div id="hist-hstar" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">酒店星级分布（%）</div><div style="position:relative;height:210px;"><canvas id="hStarChart" role="img" aria-label="酒店星级分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>已兑奖：低星30%，三星36%，高星34%，中高星占比最高（70%）</li>
+          <li>未兑奖未过期：低星49%，三星29%，高星22%，低星占比最高</li>
+          <li>未兑奖已过期：低星39%，三星14%，高星47%，高星比例最突出</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 城市线级 -->
+  <div id="hist-hcity" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">城市线级分布（%）</div><div style="position:relative;height:210px;"><canvas id="hCityChart" role="img" aria-label="城市线级分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>未兑奖未过期：一线41%，新一线31%，一线+新一线合计72%</li>
+          <li>未兑奖已过期：一线53%，新一线16%，一线最为集中</li>
+          <li>已兑奖：新一线40%，一线28%，新一线城市更突出</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADR区间 -->
+  <div id="hist-hadr" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">ADR区间分布（%）</div><div style="position:relative;height:210px;"><canvas id="hAdrChart" role="img" aria-label="ADR区间分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>三组主力区间均为150-250元（未兑奖未过期41%、未兑奖已过期25%、已兑奖43%）</li>
+          <li>未兑奖已过期高价段（450元+）合计29%，消费层次明显偏高</li>
+          <li>未兑奖未过期低价段（0-150元）占17%，低星与低价并存</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提前订天数 -->
+  <div id="hist-hadv" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">提前预订天数分布（%）</div><div style="position:relative;height:210px;"><canvas id="hAdvChart" role="img" aria-label="提前预订天数分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>未兑奖未过期：当天76%，即时预订为主</li>
+          <li>未兑奖已过期：当天62%，比例相对较低，提前1天21%</li>
+          <li>已兑奖：当天66%，5天+远期预订最高（12%），计划型出行比例更高</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 连住天数 -->
+  <div id="hist-hnight" class="hidden">
+    <div class="chart-grid">
+      <div class="cw"><div class="ct">连住天数分布（%）</div><div style="position:relative;height:210px;"><canvas id="hNightChart" role="img" aria-label="连住天数分布">图表</canvas></div></div>
+      <div class="cw" style="display:flex;flex-direction:column;justify-content:center;padding:16px;">
+        <div class="box-blue" style="margin:0;"><div class="ttl">结论</div><ul>
+          <li>未兑奖未过期：1晚83%，2晚10%，单晚为主</li>
+          <li>未兑奖已过期：1晚66%，多晚比例最高（4晚9%、3晚8%），连住需求更强</li>
+          <li>已兑奖：1晚85%，多晚比例最低，短住特征最明显</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 八 完成任务后7天行为 -->
+<div class="card" id="sec8">
+  <div class="sn">【八】</div>
+  <h2 style="margin-top:0;">完成任务后 7 天回访与复购行为</h2>
+  <div class="note-inline">口径：完成任务日期 &lt; 行为日期 ≤ 完成任务日期 + 7天 | wx&amp;app合并 | 总计365人</div>
+
+  <div class="metrics-row">
+    <div class="mc blue">
+      <div class="lb">未兑奖未过期 无回访率</div>
+      <div class="vl">29.6%</div>
+      <div class="sb">vs 未下任务单 -14.2pct | vs 已下任务单 +15.4pct</div>
+    </div>
+    <div class="mc">
+      <div class="lb">未兑奖已过期 无回访率</div>
+      <div class="vl">42.1%</div>
+      <div class="sb">vs 未下任务单 -1.6pct，接近未下任务单水平</div>
+    </div>
+    <div class="mc" style="background:#FFF3E0;">
+      <div class="lb">已兑奖 无回访率</div>
+      <div class="vl" style="color:#854F0B;">2.2%</div>
+      <div class="sb">vs 未下任务单 -41.5pct | vs 已下任务单 -12.0pct，回访最活跃</div>
+    </div>
+    <div class="mc blue">
+      <div class="lb">整体无回访率</div>
+      <div class="vl">26.8%</div>
+      <div class="sb">vs 未下任务单 -16.9pct | vs 已下任务单 +12.6pct</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cw">
+      <div class="ct">完成任务后7天回访天数分布（%）</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="postVisitChart" role="img" aria-label="完成任务后回访对比">图表</canvas>
+      </div>
+    </div>
+    <div class="cw">
+      <div class="ct">完成任务后7天复购分布（%）</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="postOrderChart" role="img" aria-label="完成任务后复购对比">图表</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="box-blue">
+    <div class="ttl">回访行为解读</div>
+    <ul>
+      <li><strong>已兑奖用户</strong>回访最活跃：无回访仅2.2%，5天+高频回访44%，显著优于其他两组及对照组</li>
+      <li><strong>未兑奖未过期</strong>：无回访29.6%，介于已下任务单（14%）和未下任务单（44%）之间，仍有一定活跃度</li>
+      <li><strong>未兑奖已过期</strong>：无回访42.1%，接近未下任务单（44%），完成任务后拉力基本消失</li>
+    </ul>
+  </div>
+
+  <div class="metrics-row" style="margin-top:14px;">
+    <div class="mc blue">
+      <div class="lb">未兑奖未过期 无复购率</div>
+      <div class="vl">54.5%</div>
+      <div class="sb">vs 未下任务单 -31.6pct | vs 已下任务单 +10.2pct</div>
+    </div>
+    <div class="mc">
+      <div class="lb">未兑奖已过期 无复购率</div>
+      <div class="vl">73.7%</div>
+      <div class="sb">vs 未下任务单 -12.4pct，复购动力偏弱</div>
+    </div>
+    <div class="mc" style="background:#FFF3E0;">
+      <div class="lb">已兑奖 无复购率</div>
+      <div class="vl" style="color:#854F0B;">35.6%</div>
+      <div class="sb">vs 未下任务单 -50.5pct | vs 已下任务单 -8.7pct，复购最活跃</div>
+    </div>
+    <div class="mc blue">
+      <div class="lb">整体无复购率</div>
+      <div class="vl">53.2%</div>
+      <div class="sb">vs 未下任务单 -32.9pct | vs 已下任务单 +8.9pct</div>
+    </div>
+  </div>
+
+  <div class="box-amber">
+    <div class="ttl">复购行为解读</div>
+    <ul>
+      <li><strong>已兑奖用户</strong>：无复购35.6%，5单+高频复购24%，复购活跃度最高；兑奖后仍保持较强粘性</li>
+      <li><strong>未兑奖未过期</strong>：无复购54.5%，复购1单17%，有一定复购但整体弱于已兑奖</li>
+      <li><strong>未兑奖已过期</strong>：无复购73.7%，仅好于未下任务单（86%）约12pct，奖品过期后复购动力明显减弱</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 九 综合评估 -->
+<div class="card" id="sec9">
+  <div class="sn">【九】</div>
+  <h2 style="margin-top:0;">综合评估与建议</h2>
+  <div class="box-green">
+    <div class="ttl">活动有效性验证（正向结论）</div>
+    <ul>
+      <li>"任务+奖励"机制验证有效：显著提升回访粘性（无回访率 -30pct）和短期复购转化（无复购率 -42pct），且在14天窗口差距进一步扩大</li>
+      <li>已下任务单用户预订偏好与未下单用户存在结构性差异：中档价位（150-350元）、中高星占比更高、一线城市和周末出行更集中</li>
+      <li>完成任务用户中已兑奖群体行为最活跃（无回访2.2%，无复购36%），完成后仍保持较强粘性；未兑奖已过期群体回访复购接近未下任务单水平，奖品过期后拉力消失</li>
+    </ul>
+  </div>
+  <div class="box-red">
+    <div class="ttl">风险与问题</div>
+    <ul>
+      <li><strong>黄牛风险</strong>：完成任务用户整体11单+占57%，其中已兑奖用户20单+占51%，频率偏高，存在黄牛风险。</li>
+      <li><strong>未兑奖已过期留存极低</strong>：奖品过期后无回访42%、无复购74%，接近未下任务单水平，需关注活动规则对用户兑奖体验的影响</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function showPref(type, btn) {
+  ['star','city','timing','price','advance','nights'].forEach(t => {
+    document.getElementById('pref-'+t).classList.add('hidden');
+  });
+  document.getElementById('pref-'+type).classList.remove('hidden');
+  btn.closest('.tab-bar').querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function showHist(type, btn) {
+  ['hloc','hstar','hcity','hadr','hadv','hnight'].forEach(t => {
+    document.getElementById('hist-'+t).classList.add('hidden');
+  });
+  document.getElementById('hist-'+type).classList.remove('hidden');
+  btn.closest('.tab-bar').querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+const BLUE = '#378ADD';
+const BL = '#B5D4F4';
+const GREEN = '#639922';
+const GR = '#C0DD97';
+const RED = '#E24B4A';
+const AMBER = '#BA7517';
+
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, callback: v => v + '%' } }
+  }
+};
+const legendOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 8, padding: 10 } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, callback: v => v + '%' } }
+  }
+};
+function diffColors(arr) { return arr.map(v => v >= 0 ? GREEN : RED); }
+
+// 一板块图表
+new Chart('visit7Chart', { type: 'bar', data: { labels: ['无回访','1天','2天','3天','4天','5天+'], datasets: [{ label: '未下任务单', data: [44,22,14,8,5,6], backgroundColor: BL },{ label: '已下任务单', data: [14,21,19,15,11,20], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('visit7DiffChart', { type: 'bar', data: { labels: ['无回访','1天','2天','3天','4天','5天+'], datasets: [{ data: [-30,-1,5,7,6,14], backgroundColor: diffColors([-30,-1,5,7,6,14]) }] }, options: baseOpts });
+new Chart('order7Chart', { type: 'bar', data: { labels: ['0单','1单','2单','3单','4单','5单+'], datasets: [{ label: '未下任务单', data: [86,10,2,1,0,0], backgroundColor: BL },{ label: '已下任务单', data: [44,29,12,6,4,5], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('order7DiffChart', { type: 'bar', data: { labels: ['0单','1单','2单','3单','4单','5单+'], datasets: [{ data: [-42,20,10,5,3,4], backgroundColor: diffColors([-42,20,10,5,3,4]) }] }, options: baseOpts });
+new Chart('visit14CmpChart', { type: 'bar', data: { labels: ['无回访','1天','2天','3天','4天','5天+'], datasets: [{ label: '7天差值', data: [-30,-1,5,7,6,14], backgroundColor: BL },{ label: '14天差值', data: [-28,-3,2,4,4,22], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('order14CmpChart', { type: 'bar', data: { labels: ['0单','1单','2单','3单','4单','5单+'], datasets: [{ label: '7天差值', data: [-42,20,10,5,3,4], backgroundColor: BL },{ label: '14天差值', data: [-47,18,11,6,4,8], backgroundColor: BLUE }] }, options: legendOpts });
+
+// 预订偏好 - 星级 (wx汇总)
+new Chart('starChart', { type: 'bar', data: { labels: ['低星','三星','高星'], datasets: [{ label: '未下任务单', data: [70,16,14], backgroundColor: BL },{ label: '已下任务单', data: [54,26,20], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('starDiffChart', { type: 'bar', data: { labels: ['低星','三星','高星'], datasets: [{ data: [-16.2,10.0,6.3], backgroundColor: diffColors([-16.2,10.0,6.3]) }] }, options: baseOpts });
+// 城市 (wx汇总) - 含六线
+new Chart('cityChart', { type: 'bar', data: { labels: ['一线','新一线','二线','三线','四线','五线','六线'], datasets: [{ label: '未下任务单', data: [36,42,12,5,4,2,0], backgroundColor: BL },{ label: '已下任务单', data: [42,36,11,5,4,2,0], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('cityDiffChart', { type: 'bar', data: { labels: ['一线','新一线','二线','三线','四线','五线','六线'], datasets: [{ data: [6.7,-6.0,-1.3,0.5,0.1,0.0,-0.1], backgroundColor: diffColors([6.7,-6.0,-1.3,0.5,0.1,0.0,-0.1]) }] }, options: baseOpts });
+// 出行时间 (wx汇总)
+new Chart('timingChart', { type: 'bar', data: { labels: ['节假日','周末','周中'], datasets: [{ label: '未下任务单', data: [22,13,65], backgroundColor: BL },{ label: '已下任务单', data: [9,34,56], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('timingDiffChart', { type: 'bar', data: { labels: ['节假日','周末','周中'], datasets: [{ data: [-12.3,21.2,-8.9], backgroundColor: diffColors([-12.3,21.2,-8.9]) }] }, options: baseOpts });
+// 价格区间 (wx汇总)
+new Chart('priceChart', { type: 'bar', data: { labels: ['0-150','150-250','250-350','350-450','450-600','600-750','750+'], datasets: [{ label: '未下任务单', data: [50,21,12,6,5,3,3], backgroundColor: BL },{ label: '已下任务单', data: [21,41,18,8,6,2,3], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('priceDiffChart', { type: 'bar', data: { labels: ['0-150','150-250','250-350','350-450','450-600','600-750','750+'], datasets: [{ data: [-28.9,20.4,7.0,1.7,0.1,-0.4,0.2], backgroundColor: diffColors([-28.9,20.4,7.0,1.7,0.1,-0.4,0.2]) }] }, options: baseOpts });
+
+// 提前预订天数 (wx汇总 - 未下vs已下)
+new Chart('advanceChart', { type: 'bar', data: { labels: ['当天(0)','提前1天','提前2天','提前3天','提前4天','5天+'], datasets: [{ label: '未下任务单(wx)', data: [64.51,12.53,4.23,2.64,1.95,14.75], backgroundColor: BL },{ label: '已下任务单(wx)', data: [72.16,12.68,3.82,2.12,1.39,7.82], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('advanceDiffChart', { type: 'bar', data: { labels: ['当天(0)','提前1天','提前2天','提前3天','提前4天','5天+'], datasets: [{ data: [8.27,0.14,-0.41,-0.52,-0.56,-6.93], backgroundColor: diffColors([8.27,0.14,-0.41,-0.52,-0.56,-6.93]) }] }, options: baseOpts });
+// 连住天数 (wx汇总 - 未下vs已下)
+new Chart('nightsChart', { type: 'bar', data: { labels: ['1晚','2晚','3晚','4晚','5晚+'], datasets: [{ label: '未下任务单(wx)', data: [76.47,11.37,6.02,3.52,2.56], backgroundColor: BL },{ label: '已下任务单(wx)', data: [83.68,9.83,3.66,1.62,1.21], backgroundColor: BLUE }] }, options: legendOpts });
+new Chart('nightsDiffChart', { type: 'bar', data: { labels: ['1晚','2晚','3晚','4晚','5晚+'], datasets: [{ data: [7.15,-1.54,-2.36,-1.90,-1.35], backgroundColor: diffColors([7.15,-1.54,-2.36,-1.90,-1.35]) }] }, options: baseOpts });
+
+// 二板块颜色
+const C_UNEXPIRED = '#378ADD'; // 未兑奖未过期 blue
+const C_EXPIRED   = '#D3D1C7'; // 未兑奖已过期 gray
+const C_CLAIMED   = '#BA7517'; // 已兑奖 amber
+
+const threeGroupLegendOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 8, padding: 8 } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, callback: v => v + '%' } }
+  }
+};
+
+// 【六】历史下单频次 — 三组分组柱状图
+new Chart('freqChart', { type: 'bar', data: {
+  labels: ['1-2单','3-5单','6-10单','11-20单','20单+'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [4.0, 16.3, 24.9, 27.9, 26.9], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [10.5, 31.6, 26.3, 26.3, 5.3],  backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [2.2,  8.9,  6.7,  31.1, 51.1], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 【七】历史预订偏好 — 三组
+// 本异地
+new Chart('hLocChart', { type: 'bar', data: {
+  labels: ['本地','异地'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [45.98, 54.02], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [50.31, 49.69], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [34.41, 65.59], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 酒店星级
+new Chart('hStarChart', { type: 'bar', data: {
+  labels: ['低星','三星','高星'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [48.61, 29.22, 22.17], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [38.51, 14.29, 47.20], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [29.86, 36.22, 33.92], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 城市线级
+new Chart('hCityChart', { type: 'bar', data: {
+  labels: ['一线','新一线','二线','三线','四线','五线'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [40.72, 30.54, 10.84, 8.25, 6.91, 2.60], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [53.42, 16.15, 6.21, 17.39, 4.35, 2.48], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [27.55, 39.72, 12.80, 6.78, 9.65, 3.29], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// ADR区间
+new Chart('hAdrChart', { type: 'bar', data: {
+  labels: ['0-150','150-250','250-350','350-450','450-600','600-750','750+'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [17.38, 41.34, 21.29, 8.93, 4.67, 2.28, 4.11], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [12.42, 25.47, 22.36, 13.04, 10.56, 9.32, 6.83], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [14.20, 43.43, 15.45, 9.86, 7.27, 3.71, 6.08], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 提前预订天数
+new Chart('hAdvChart', { type: 'bar', data: {
+  labels: ['当天(0)','1天','2天','3天','4天','5天+'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [75.93, 11.66, 3.85, 1.94, 1.12, 5.49], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [62.11, 21.12, 3.73, 2.48, 4.97, 5.59], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [66.29, 12.80, 3.85, 3.50, 1.82, 11.75], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 连住天数
+new Chart('hNightChart', { type: 'bar', data: {
+  labels: ['1晚','2晚','3晚','4晚','5晚+'],
+  datasets: [
+    { label: '未兑奖(未过期)', data: [82.50, 9.57, 4.67, 1.40, 1.86], backgroundColor: C_UNEXPIRED },
+    { label: '未兑奖(已过期)', data: [66.46, 14.91, 8.07, 8.70, 1.86], backgroundColor: C_EXPIRED },
+    { label: '已兑奖',         data: [85.10, 10.21, 3.01, 0.77, 0.91], backgroundColor: C_CLAIMED }
+  ]
+}, options: threeGroupLegendOpts });
+
+// 【八】完成任务后7天回访 — 三组 + 两个对照组参考线
+new Chart('postVisitChart', { type: 'bar', data: {
+  labels: ['无回访','1天','2天','3天','4天','5天+'],
+  datasets: [
+    { label: '未下任务单(参照)', data: [43.7, 22.4, 13.8, 8.5, 5.3, 6.3], backgroundColor: '#EDE9E3' },
+    { label: '未兑奖(已过期)',   data: [42.1, 21.1, 10.5, 5.3, 0.0, 21.1], backgroundColor: C_EXPIRED },
+    { label: '未兑奖(未过期)',   data: [29.6, 17.6, 18.6, 12.6, 8.3, 13.3], backgroundColor: C_UNEXPIRED },
+    { label: '已兑奖',           data: [2.2,  0.0,  8.9, 24.4, 20.0, 44.4], backgroundColor: C_CLAIMED },
+    { label: '已下任务单(参照)', data: [14.2, 21.0, 18.7, 15.1, 11.0, 20.0], backgroundColor: '#B5D4F4' }
+  ]
+}, options: { ...threeGroupLegendOpts, plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 8, padding: 6 } } } } });
+
+new Chart('postOrderChart', { type: 'bar', data: {
+  labels: ['0单','1单','2单','3单','4单','5单+'],
+  datasets: [
+    { label: '未下任务单(参照)', data: [86.1, 10.0, 2.4, 0.9, 0.4, 0.5], backgroundColor: '#EDE9E3' },
+    { label: '未兑奖(已过期)',   data: [73.7, 10.5, 5.3, 5.3, 0.0, 5.3], backgroundColor: C_EXPIRED },
+    { label: '未兑奖(未过期)',   data: [54.5, 17.3, 13.3, 6.6, 3.7, 4.6], backgroundColor: C_UNEXPIRED },
+    { label: '已兑奖',           data: [35.6, 22.2, 4.4, 8.9, 4.4, 24.4], backgroundColor: C_CLAIMED },
+    { label: '已下任务单(参照)', data: [44.2, 29.4, 12.2, 6.1, 3.7, 4.8], backgroundColor: '#B5D4F4' }
+  ]
+}, options: { ...threeGroupLegendOpts, plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 8, padding: 6 } } } } });
+</script>
+
+</body>
+</html>
